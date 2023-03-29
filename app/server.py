@@ -35,25 +35,9 @@ scheduler = APScheduler()
 scheduler.api_enabled = True
 scheduler.init_app(app)
 
-def send_daily_news(client, news):
-    for news_item in news:
-        try:
-            r = client.chat_postMessage(
-                channel=schedule_channel,
-                text="🔥🔥🔥 Daily Hot News 🔥🔥🔥",
-                blocks=news_item,
-                reply_broadcast=True,
-                unfurl_links=False,
-            )
-            logging.info(r)
-        except Exception as e:
-            logging.error(e)
-
-@scheduler.task('cron', id='daily_news_task', hour=1, minute=30)
-def schedule_news():
-    logging.info("=====> Start to send daily news!")
-    all_news_blocks = build_all_news_block()
-    send_daily_news(slack_app.client, all_news_blocks)
+@app.route("/", methods=["GET"])
+def root():
+    return "healthy"
 
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
@@ -122,7 +106,7 @@ def is_authorized(user_id: str) -> bool:
         return True
     with open(whitelist_file, "r") as f:
         return user_id in f.read().splitlines()
-    
+
 def dialog_context_keep_latest(dialog_texts, max_length=1):
     if len(dialog_texts) > max_length:
         dialog_texts = dialog_texts[-max_length:]
@@ -192,7 +176,7 @@ def handle_mentions(event, say, logger):
     if file_md5_name is not None:
         if not voicemessage:
             update_thread_history(parent_thread_ts, None, None, file_md5_name)
-    
+
     urls = thread_message_history[parent_thread_ts]['context_urls']
     file = thread_message_history[parent_thread_ts]['file']
 
@@ -228,4 +212,4 @@ register_slack_slash_commands(slack_app)
 scheduler.start()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=int(os.environ.get("PORT", 3000)))

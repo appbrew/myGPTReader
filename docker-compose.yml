@@ -1,0 +1,12 @@
+version: '2.0'
+services:
+  bot:
+    build: .
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/myGPTReader
+    environment:
+      - OPENAI_API_KEY
+      - SLACK_TOKEN
+      - SLACK_SIGNING_SECRET
