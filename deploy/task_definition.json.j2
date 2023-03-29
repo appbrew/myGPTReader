@@ -13,6 +13,16 @@
         {% endfor %}
           { "name": "BUILD_NUMBER", "value": "{{ image_id }}" }
       ],
+      "healthCheck": {
+        "retries": 3,
+        "command": [
+          "CMD-SHELL",
+          "curl -sf http://localhost:3000/ || exit 1"
+        ],
+        "timeout": 3,
+        "interval": 5,
+        "startPeriod": 10
+      },
       "volumesFrom": [],
       "portMappings": [
         { "hostPort": 3000, "containerPort": 3000, "protocol": "tcp" }
