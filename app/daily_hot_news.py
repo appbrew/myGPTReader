@@ -64,7 +64,7 @@ def get_text_from_html(html):
 def get_post_urls_with_title(rss_url):
     feed = feedparser.parse(rss_url)
     updated_posts = []
-    
+
     for entry in feed.entries:
         published_time = entry.published_parsed if 'published_parsed' in entry else None
         # published_date = date(published_time.tm_year,
@@ -77,7 +77,7 @@ def get_post_urls_with_title(rss_url):
         updated_posts.append(updated_post)
         if len(updated_posts) >= MAX_POSTS:
             break
-        
+
     return updated_posts
 
 def build_slack_blocks(title, news):

@@ -43,25 +43,9 @@ scheduler = APScheduler()
 scheduler.api_enabled = True
 scheduler.init_app(app)
 
-def send_daily_news(client, news):
-    for news_item in news:
-        try:
-            r = client.chat_postMessage(
-                channel=schedule_channel,
-                text="🔥🔥🔥 Daily Hot News 🔥🔥🔥",
-                blocks=news_item,
-                reply_broadcast=True,
-                unfurl_links=False,
-            )
-            logging.info(r)
-        except Exception as e:
-            logging.error(e)
-
-@scheduler.task('cron', id='daily_news_task', hour=1, minute=30)
-def schedule_news():
-    logging.info("=====> Start to send daily news!")
-    all_news_blocks = build_all_news_block()
-    send_daily_news(slack_app.client, all_news_blocks)
+@app.route("/", methods=["GET"])
+def root():
+    return "healthy"
 
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
@@ -122,7 +106,7 @@ max_file_size = 3 * 1024 * 1024
 limiter_message_per_user = 5
 limiter_time_period = 24 * 3600
 limiter = RateLimiter(limit=limiter_message_per_user, period=limiter_time_period)
-    
+
 def dialog_context_keep_latest(dialog_texts, max_length=1):
     if len(dialog_texts) > max_length:
         dialog_texts = dialog_texts[-max_length:]
@@ -213,7 +197,7 @@ def bot_process(event, say, logger):
     if file_md5_name is not None:
         if not voicemessage:
             update_thread_history(parent_thread_ts, None, None, file_md5_name)
-    
+
     urls = thread_message_history[parent_thread_ts]['context_urls']
     file = thread_message_history[parent_thread_ts]['file']
 
@@ -261,9 +245,9 @@ def handle_mentions(event, say, logger):
         if not is_premium_user(user):
             say(f'<@{user}>, 免费用户试用额度为 {limiter_message_per_user} 条对话每 {limiter_time_period / 3600} 小时, 你已超出该限制，请等待后再试。如欲购买请微信联系 `improve365_cn` 管理员。', thread_ts=thread_ts)
             return
-    
+
     bot_process(event, say, logger)
-    
+
 
 def bot_messages(message, next):
     logging.info(message)
@@ -539,4 +523,4 @@ def update_home_tab(client, event, logger):
 scheduler.start()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=int(os.environ.get("PORT", 3000)))

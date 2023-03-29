@@ -1,0 +1,51 @@
+{
+  "family": "chat-gpt-bot",
+  "containerDefinitions": [
+    {
+      "name": "chat-gpt-bot",
+      "image": "987776079498.dkr.ecr.ap-northeast-1.amazonaws.com/appbrew/chat-gpt-bot:{{image_id}}",
+      "cpu": 1000,
+      "memoryReservation": 900,
+      "essential": true,
+      "environment": [
+        {% for key, value in environment_variables.items() %}
+          { "name": "{{ key }}", "value": "{{ value }}" },
+        {% endfor %}
+          { "name": "BUILD_NUMBER", "value": "{{ image_id }}" }
+      ],
+      "volumesFrom": [],
+      "portMappings": [
+        { "hostPort": 3000, "containerPort": 3000, "protocol": "tcp" }
+      ],
+      "mountPoints": [
+        { "containerPath": "/var/www/app/log", "sourceVolume": "log", "readOnly": false },
+        { "containerPath": "/var/www/app/tmp", "sourceVolume": "tmp", "readOnly": false }
+      ],
+      "ulimits": [
+        {
+          "name": "nofile",
+          "softLimit": 65536,
+          "hardLimit": 65536
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "chat-gpt-bot",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "chat-gpt-bot"
+        }
+      }
+    }
+  ],
+  "volumes": [
+    { "name": "log", "host": { "sourcePath": "/var/www/app/log" } },
+    { "name": "tmp", "host": { "sourcePath": "/var/www/app/tmp" } },
+    { "name": "docker-sock", "host": { "sourcePath": "/var/run/docker.sock" } },
+    { "name": "mounts", "host": { "sourcePath": "/proc/mounts" } },
+    { "name": "cgroup", "host": { "sourcePath": "/cgroup" } },
+    { "name": "mackerel-agent-conf", "host": { "sourcePath": "/etc/mackerel-agent/conf.d" } },
+    { "name": "mackerel-agent", "host": { "sourcePath": "/var/lib/mackerel-agent/" } }
+  ],
+  "placementConstraints": []
+}
