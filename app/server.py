@@ -216,6 +216,7 @@ def bot_process(event, say, logger):
     try:
         gpt_response = future.result(timeout=300)
         update_thread_history(parent_thread_ts, 'Assistant: %s' % insert_space(f'{gpt_response}'))
+        gpt_response = gpt_response.replace("Assistant: ", "")
         logger.info(gpt_response)
         if voicemessage is None:
             say(f'<@{user}>, {gpt_response}', thread_ts=thread_ts)
