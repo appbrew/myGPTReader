@@ -31,6 +31,7 @@ slack_app = App(
     raise_error_for_unhandled_request=True
 )
 slack_handler = SlackRequestHandler(slack_app)
+logging.getLogger("slack_bolt.App").setLevel(logging.ERROR)
 
 @slack_app.error
 def handle_errors(error):
