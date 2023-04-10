@@ -21,6 +21,9 @@ SPEECH_KEY = os.environ.get('SPEECH_KEY')
 SPEECH_REGION = os.environ.get('SPEECH_REGION')
 openai.api_key = OPENAI_API_KEY
 
+llm_predictor = LLMPredictor(llm=ChatOpenAI(
+    temperature=0, model_name="gpt-4"))
+
 index_cache_web_dir = Path('/tmp/myGPTReader/cache_web/')
 index_cache_file_dir = Path('/data/myGPTReader/file/')
 index_cache_voice_dir = Path('/tmp/myGPTReader/voice/')
@@ -35,7 +38,7 @@ if not index_cache_file_dir.is_dir():
     index_cache_file_dir.mkdir(parents=True, exist_ok=True)
 
 llm_predictor = LLMPredictor(llm=ChatOpenAI(
-    temperature=0, model_name="gpt-3.5-turbo"))
+    temperature=0, model_name="gpt-4-turbo-2024-04-09"))
 
 service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
 
@@ -109,7 +112,7 @@ def get_answer_from_chatGPT(messages):
     logging.info('=====> Use chatGPT to answer!')
     logging.info(dialog_messages)
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[{"role": "user", "content": dialog_messages}]
     )
     logging.info(completion.usage)
