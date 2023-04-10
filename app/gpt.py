@@ -62,7 +62,7 @@ def get_document_from_youtube_id(video_id):
     return Document(transcript)
 
 def remove_prompt_from_text(text):
-    return text.replace('chatGPT:', '').strip()
+    return text.replace('chatGPT:', '').replace('Assistant:', '').strip()
 
 def get_documents_from_urls(urls):
     documents = []
