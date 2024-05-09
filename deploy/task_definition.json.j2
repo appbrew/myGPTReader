@@ -4,8 +4,8 @@
     {
       "name": "chat-gpt-bot",
       "image": "987776079498.dkr.ecr.ap-northeast-1.amazonaws.com/appbrew/chat-gpt-bot:{{image_id}}",
-      "cpu": 1000,
-      "memoryReservation": 900,
+      "cpu": 2000,
+      "memoryReservation": 1800,
       "essential": true,
       "environment": [
         {% for key, value in environment_variables.items() %}
