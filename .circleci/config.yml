@@ -1,4 +1,15 @@
-version: 2
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@9.0.0
+  aws-cli: circleci/aws-cli@4.1.1
+
+commands:
+  login_ecr_repository:
+    steps:
+      - aws-cli/setup:
+          role_arn: arn:aws:iam::987776079498:role/circleci-my-gpt-reader-deploy
+      - aws-ecr/ecr_login
 
 jobs:
   deploy:
@@ -23,13 +34,6 @@ jobs:
             sh deploy/docker_build.sh
             sh deploy/docker_push.sh
             sh deploy/deploy.sh
-
-commands:
-  login_ecr_repository:
-    steps:
-      - aws-cli/setup:
-          role_arn: arn:aws:iam::987776079498:role/circleci-my-gpt-reader-deploy
-      - aws-ecr/ecr_login
 
 workflows:
   version: 2
