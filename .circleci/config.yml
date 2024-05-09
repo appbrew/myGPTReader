@@ -27,10 +27,6 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install awscli jinja2
-            echo "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> $BASH_ENV
-            source $BASH_ENV
-            eval $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
             sh deploy/docker_build.sh
             sh deploy/docker_push.sh
             sh deploy/deploy.sh
