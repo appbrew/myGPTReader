@@ -11,7 +11,7 @@ CF_ACCESS_CLIENT_SECRET = os.environ.get('CF_ACCESS_CLIENT_SECRET')
 def update_message_token_usage(user_id, message_id, message_type, llm_token_usage=0, embedding_token_usage=0) -> bool:
     logging.info(f"Updating message token usage for user {user_id} and message {message_id}")
 
-    endpoint_url = "https://api.myreader.io/api/message"
+    endpoint_url = "https://chat-gpt-bot.appbrew.io/api/message"
     headers = {
         'CF-Access-Client-Id': CF_ACCESS_CLIENT_ID,
         'CF-Access-Client-Secret': CF_ACCESS_CLIENT_SECRET,
@@ -37,9 +37,9 @@ def update_message_token_usage(user_id, message_id, message_type, llm_token_usag
         return True
     else:
         return False
-    
+
 def get_user(user_id):
-    endpoint_url = f"https://api.myreader.io/api/user/slack/{user_id}"
+    endpoint_url = f"https://chat-gpt-bot.appbrew.io/api/user/slack/{user_id}"
     headers = {
         'CF-Access-Client-Id': CF_ACCESS_CLIENT_ID,
         'CF-Access-Client-Secret': CF_ACCESS_CLIENT_SECRET,
@@ -55,7 +55,7 @@ def get_user(user_id):
             return "Error: Unable to parse JSON response"
     else:
         return f"Error: {response.status_code} - {response.reason}"
-    
+
 def is_active_user(user_id):
     try:
         user = get_user(user_id)
@@ -64,7 +64,7 @@ def is_active_user(user_id):
     except Exception as e:
         logging.error(f"Error while checking if user {user_id} is active: {e}")
     return False
-        
+
 def is_premium_user(user_id):
     try:
         user = get_user(user_id)
@@ -77,7 +77,7 @@ def is_premium_user(user_id):
         premium_end_date = user['premium_end_date']
         if not premium_end_date:
             return False
-        
+
         utc_timezone = pytz.timezone('UTC')
         premium_end_datetime = datetime.utcfromtimestamp(int(premium_end_date)).replace(tzinfo=utc_timezone)
         return premium_end_datetime > datetime.utcnow().replace(tzinfo=utc_timezone)
