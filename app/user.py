@@ -38,6 +38,24 @@ def update_message_token_usage(user_id, message_id, message_type, llm_token_usag
     else:
         return False
 
+def get_user(user_id):
+    endpoint_url = f"https://chat-gpt-bot.appbrew.io/api/user/slack/{user_id}"
+    headers = {
+        'CF-Access-Client-Id': CF_ACCESS_CLIENT_ID,
+        'CF-Access-Client-Secret': CF_ACCESS_CLIENT_SECRET,
+    }
+    response = requests.get(endpoint_url, headers=headers)
+    if response.status_code == 200:
+        try:
+            json_response = response.json()
+            if 'error' in json_response:
+                return None
+            return json_response
+        except:
+            return "Error: Unable to parse JSON response"
+    else:
+        return f"Error: {response.status_code} - {response.reason}"
+
 def is_active_user(user_id):
     try:
         user = get_user(user_id)
