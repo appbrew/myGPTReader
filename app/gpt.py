@@ -22,7 +22,7 @@ SPEECH_REGION = os.environ.get('SPEECH_REGION')
 openai.api_key = OPENAI_API_KEY
 
 llm_predictor = LLMPredictor(llm=ChatOpenAI(
-    temperature=0, model_name="gpt-4"))
+    temperature=0, model_name="gpt-4-turbo-2024-04-09"))
 
 index_cache_web_dir = Path('/tmp/myGPTReader/cache_web/')
 index_cache_file_dir = Path('/data/myGPTReader/file/')
@@ -37,8 +37,6 @@ if not index_cache_voice_dir.is_dir():
 if not index_cache_file_dir.is_dir():
     index_cache_file_dir.mkdir(parents=True, exist_ok=True)
 
-llm_predictor = LLMPredictor(llm=ChatOpenAI(
-    temperature=0, model_name="gpt-4-turbo-2024-04-09"))
 
 service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
 

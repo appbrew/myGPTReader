@@ -215,9 +215,9 @@ def bot_process(event, say, logger):
         future = executor.submit(get_answer_from_chatGPT, thread_message_history[parent_thread_ts]['dialog_texts'])
 
     try:
-        gpt_response = future.result(timeout=300)
-        update_thread_history(parent_thread_ts, 'Assistant: %s' % insert_space(f'{gpt_response}'))
-        gpt_response = gpt_response.replace("Assistant: ", "")
+        gpt_response, total_llm_model_tokens, total_embedding_model_tokens = future.result(timeout=300)
+        update_token_usage(event, total_llm_model_tokens, total_embedding_model_tokens)
+        update_thread_history(parent_thread_ts, 'chatGPT: %s' % insert_space(f'{gpt_response}'))
         logger.info(gpt_response)
         if voicemessage is None:
             say(f'<@{user}>, {gpt_response}', thread_ts=thread_ts)
