@@ -235,20 +235,7 @@ def bot_process(event, say, logger):
 def handle_mentions(event, say, logger):
     logger.info(event)
 
-    user = event["user"]
-    thread_ts = event["ts"]
-
-    if not is_active_user(user):
-        say(f'<@{user}>, 你的账户未激活，请微信联系 `improve365_cn` 管理员激活你的账户后再试用。', thread_ts=thread_ts)
-        return
-
-    if not limiter.allow_request(user):
-        if not is_premium_user(user):
-            say(f'<@{user}>, 免费用户试用额度为 {limiter_message_per_user} 条对话每 {limiter_time_period / 3600} 小时, 你已超出该限制，请等待后再试。如欲购买请微信联系 `improve365_cn` 管理员。', thread_ts=thread_ts)
-            return
-
     bot_process(event, say, logger)
-
 
 def bot_messages(message, next):
     logging.info(message)
@@ -261,10 +248,7 @@ def bot_messages(message, next):
 @slack_app.event(event="message", middleware=[bot_messages])
 def log_message(logger, event, say):
     try:
-        if is_premium_user(event["user"]):
-            bot_process(event, say, logger)
-        else:
-            say(f'This feature is exclusive to Premium users. To chat with the bot directly, please subscribe to our Premium plan to support our service. You can find the payment link by clicking on the bot and selecting the Home tab.', thread_ts=event["ts"])
+        bot_process(event, say, logger)
     except Exception as e:
         logger.error(f"Error responding to direct message: {e}")
 
@@ -272,252 +256,13 @@ def log_message(logger, event, say):
 def send_welcome_message(logger, event):
     try:
         logger.info(f"Welcome new user: {event}")
-        user_id = event["user"]["id"]
-        user_info = get_user(user_id)
-        welcome_message_block = [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"Hi <@{user_id}>, welcome to myreader.io, a community-driven way to read and chat with AI bots! In this community, you can read articles and documents with the AI bots, and chat with the AI bots to get answers to your questions. You can also share what you read with the community and learn how to communicate with the AI bots using the best `prompt`."
-                }
-            },
-            {
-                "type": "divider"
-            },
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": "How to use myreader.io"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "0. Go to the channel #general to know the latest news about the product.\n 1. Go to the channel #temp and mention the bot with the command `@my-gpt-reader-bot` to get started.\n 2. You can post a link to an article or document with your question, and the bot will give your answer based the article or document.\n 3. You can also talk to the bot with any question, and the bot will give your answer based on the context of the conversation.\n 4. You can talk to the bot via voice message, and the bot also will respond with a voice message. We think it is a good way to practice your second language."
-                }
-            },
-            {
-                "type": "divider"
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*Free plan limitation* \n 1. Free users can only talk to the bot in the public channel. If you want to a private conversation with the bot, please subscribe to our Premium plan to support our service.\n 2. There is a rate limit of {limiter_message_per_user} messages per {limiter_time_period / 3600} hour. If you want to send more messages, please subscribe to our Premium plan to support our service."
-                }
-            },
-            {
-                "type": "divider"
-            },
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": "How to subscribe to our Premium plan"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "Click the `Subscribe Now` to subscribe to our Premium plan."
-                },
-                "accessory": {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Subscribe Now"
-                    },
-                    "url": f"{user_info['payment_link']}"
-                }
-            },
-            {
-                "type": "divider"
-            },
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": "Support our service"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "You can support our service by giving us a upvote on Product Hunt: https://www.producthunt.com/posts/mygptreader"
-                }
-            }
-        ]
-        r = slack_app.client.chat_postMessage(text='Welcome to myreader.io!', blocks=welcome_message_block, channel=user_id)
-        logger.info(r)
     except Exception as e:
         logger.error(f"Error sending welcome message: {e}")
 
 @slack_app.event("app_home_opened")
 def update_home_tab(client, event, logger):
     try:
-        user_info = get_user(event["user"])
-        if user_info is not None:
-            user_type = user_info['user_type']
-            premium_end_date = user_info['premium_end_date']
-            llm_token_month_usage = user_info['llm_token_month_usage']
-            embedding_token_month_usage = user_info['embedding_token_month_usage']
-            message_month_count = user_info['message_month_count']
-            llm_token_today_usage = user_info['llm_token_today_usage']
-            embedding_token_today_usage = user_info['embedding_token_today_usage']
-            message_today_count = user_info['message_today_count']
-            payment_link = user_info['payment_link']
-        else:
-            user_type = None
-            premium_end_date = None
-            llm_token_month_usage = None
-            embedding_token_month_usage = None
-            message_month_count = None
-            llm_token_today_usage = None
-            embedding_token_today_usage = None
-            message_today_count = None
-            payment_link = None
-        user_block_info = [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User ID:* {event['user'] or ''}"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User Type:* {user_type or ''}"
-                }
-            }
-        ]
-        if premium_end_date is not None:
-            dt_object = datetime.utcfromtimestamp(int(premium_end_date))
-            date_string = dt_object.strftime("%m/%d/%Y")
-            user_block_info.append({
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": f"*Premium End Date:* {date_string}(UTC)"
-                        }
-                    })
-        if payment_link is not None:
-            if user_type == 'premium':
-                user_block_info.append({
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*Premium Membership*"
-                    },
-                    "accessory": {
-                        "type": "button",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Manage Subscription"
-                        },
-                        "url": f"{payment_link}"
-                    }
-                })
-            else:
-                user_block_info.append({
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*Premium Membership*"
-                    },
-                    "accessory": {
-                        "type": "button",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Subscribe Now"
-                        },
-                        "url": f"{payment_link}"
-                    }
-                })
-        blocks = [
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": "Today's usage",
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User llm token usage:* {llm_token_today_usage or ''}"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User embedding token usage:* {embedding_token_today_usage or ''}"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User message count:* {message_today_count or ''}"
-                }
-            },
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": "This month's usage",
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User llm token usage:* {llm_token_month_usage or ''}"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User embedding token usage:* {embedding_token_month_usage or ''}"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*User message count:* {message_month_count or ''}"
-                }
-            },
-            {
-                "type": "divider"
-            },
-            {
-                "type": "context",
-                "elements": [
-                    {
-                        "type": "mrkdwn",
-                        "text": "Powered by https://www.i365.tech/"
-                    }
-                ]
-            }
-        ]
-        user_block_info.extend(blocks)
-        client.views_publish(
-            user_id=event["user"],
-            view={
-                "type": "home",
-                "blocks": user_block_info
-            }
-        )
+        logger.info("aaa")
     except Exception as e:
         logger.error(f"Error publishing home tab: {e}")
 
