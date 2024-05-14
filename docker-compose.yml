@@ -10,3 +10,4 @@ services:
       - OPENAI_API_KEY
       - SLACK_TOKEN
       - SLACK_SIGNING_SECRET
+      - PHANTOMJSCLOUD_API_KEY

@@ -17,7 +17,8 @@ if __name__ == "__main__":
     environment_whitelist = [
         "OPENAI_API_KEY",
         "SLACK_TOKEN",
-        "SLACK_SIGNING_SECRET"
+        "SLACK_SIGNING_SECRET",
+        "PHANTOMJSCLOUD_API_KEY",
     ]
     environment_variables = {key: os.environ.get(key) for key in environment_whitelist}
 
