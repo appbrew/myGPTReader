@@ -1,5 +1,5 @@
 Flask==2.2.3
-gunicorn==20.1.0
+gunicorn==22.0.0
 llama-index==0.6.9
 langchain==0.0.154
 httpx==0.23.3
@@ -20,5 +20,5 @@ docx2txt==0.8
 azure-cognitiveservices-speech==1.26.0
 langdetect==1.0.9
 youtube-transcript-api==0.5.0
-pypdf==3.9.0
+pypdf==6.19.0
 Werkzeug==2.2.2
