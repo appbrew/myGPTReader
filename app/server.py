@@ -17,7 +17,7 @@ from app.user import get_user, is_premium_user, is_active_user, update_message_t
 from app.util import md5
 
 class Config:
-    SCHEDULER_API_ENABLED = True
+    SCHEDULER_API_ENABLED = False
 
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
 
@@ -41,7 +41,7 @@ def handle_errors(error):
         return BoltResponse(status=500, body="Something Wrong")
 
 scheduler = APScheduler()
-scheduler.api_enabled = True
+scheduler.api_enabled = False
 scheduler.init_app(app)
 
 @app.route("/", methods=["GET"])
